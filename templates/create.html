@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>创建活动</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=ZCOOL+KuaiLe&display=swap"
+      rel="stylesheet"
+    />
+    <link href="/static/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="mt-5" style="font-family: 'ZCOOL KuaiLe', cursive">
+        创建活动
+      </h1>
+      <form id="create-event-form">
+        <div class="form-group">
+          <label for="name">活动名称</label>
+          <input
+            type="text"
+            class="form-control"
+            id="name"
+            name="name"
+            maxlength="20"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="date">活动日期</label>
+          <input
+            type="date"
+            class="form-control"
+            id="date"
+            name="date"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="time">活动时间</label>
+          <input
+            type="time"
+            class="form-control"
+            id="time"
+            name="time"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="location">活动地点</label>
+          <input
+            type="text"
+            class="form-control"
+            id="location"
+            name="location"
+            maxlength="50"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="minParticipants">最小人数</label>
+          <input
+            type="number"
+            class="form-control"
+            id="minParticipants"
+            name="minParticipants"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="contact">联系方式</label>
+          <input
+            type="text"
+            class="form-control"
+            id="contact"
+            name="contact"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="description">活动描述</label>
+          <textarea
+            class="form-control"
+            id="description"
+            name="description"
+            rows="3"
+          ></textarea>
+        </div>
+        <button type="submit" class="btn btn-info">创建</button>
+      </form>
+    </div>
+
+    <div class="modal" tabindex="-1" role="dialog" id="confirmationModal">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">活动已创建</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p id="modal-message"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="confirmButton">
+              确认
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      document
+        .getElementById("create-event-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const formData = {
+            name: document.getElementById("name").value,
+            location: document.getElementById("location").value,
+            date: document.getElementById("date").value,
+            time: document.getElementById("time").value,
+            minParticipants: document.getElementById("minParticipants").value,
+            contact: document.getElementById("contact").value,
+            description: document.getElementById("description").value,
+          };
+          fetch("/api/events", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById(
+                "modal-message"
+              ).textContent = `活动已创建，代码：${data.code}`;
+              $("#confirmationModal").modal("show");
+              document
+                .getElementById("confirmButton")
+                .addEventListener("click", function () {
+                  window.location.href = "/";
+                });
+            });
+        });
+    </script>
+  </body>
+</html>

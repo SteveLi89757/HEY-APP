@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>活动详情</title>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=ZCOOL+KuaiLe&display=swap"
+      rel="stylesheet"
+    />
+    <link href="/static/css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container mb-5">
+      <h1 class="mt-5" style="font-family: 'ZCOOL KuaiLe', cursive">
+        {{ event.name }}
+      </h1>
+      <p>日期: {{ event.date }}</p>
+      <p>时间: {{ event.time }}</p>
+      <p>地点: {{ event.location }}</p>
+      <p>描述: {{ event.description }}</p>
+      <p>最小人数: {{ event.minParticipants }}</p>
+      <p>当前人数: {{ registrations | length }}</p>
+      <ul>
+        {% for registration in registrations %}
+        <li>
+          {{ registration.participantName }}{% if
+          registration.participantContact %} - {{
+          registration.participantContact }}{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      <form id="register-form" method="post" action="/event/{{ event.id }}">
+        <div class="form-group">
+          <label for="participantName">参与者姓名</label>
+          <input
+            type="text"
+            class="form-control"
+            id="participantName"
+            name="participantName"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="participantContact">参与者联系方式</label>
+          <input
+            type="text"
+            class="form-control"
+            id="participantContact"
+            name="participantContact"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">报名</button>
+      </form>
+      <div class="mt-4">
+        <div class="form-group">
+          <label for="actionCode"
+            >活动代码（只有拥有神秘代码的人才能执行此操作）</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            id="actionCode"
+            name="actionCode"
+            required
+          />
+        </div>
+        <button id="confirmButton" class="btn btn-success">确认活动</button>
+        <button id="deleteButton" class="btn btn-danger">删除活动</button>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      document
+        .getElementById("register-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const formData = {
+            participantName: document.getElementById("participantName").value,
+            participantContact:
+              document.getElementById("participantContact").value,
+          };
+          fetch("/event/{{ event.id }}", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              location.reload();
+            });
+        });
+
+      document
+        .getElementById("confirmButton")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          const formData = {
+            confirmCode: document.getElementById("actionCode").value,
+          };
+          fetch("/event/{{ event.id }}/confirm", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                location.reload();
+              } else {
+                alert("代码错误，请重试。");
+              }
+            });
+        });
+
+      document
+        .getElementById("deleteButton")
+        .addEventListener("click", function (e) {
+          e.preventDefault();
+          const formData = {
+            deleteCode: document.getElementById("actionCode").value,
+          };
+          fetch("/event/{{ event.id }}/delete", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                window.location.href = "/";
+              } else {
+                alert("代码错误，请重试。");
+              }
+            });
+        });
+    </script>
+  </body>
+</html>
