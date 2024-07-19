@@ -116,7 +116,7 @@
             .then((response) => response.json())
             .then((data) => {
               if (data.success) {
-                location.reload();
+                window.location.href = "/";
               } else {
                 alert("代码错误，请重试。");
               }
